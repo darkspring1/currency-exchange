@@ -15,13 +15,13 @@ namespace Api.Controllers
             _logger = logger;
         }
         
-        [HttpGet("{userId}/balance")]
+        [HttpGet("{userId:guid}/balance")]
         public decimal GetBalance(Guid userId)
         {
             return 1;
         }
 
-        [HttpPut("{userId}/balance")]
+        [HttpPut("{userId:guid}/balance")]
         public decimal UpdateBalance(Guid userId, [FromBody]UpdateBalanceRequest request)
         {
             return 1;
