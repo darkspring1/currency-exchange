@@ -16,18 +16,43 @@ namespace Dal.Migrations
                 name: "public");
 
             migrationBuilder.Sql(@"
-                CREATE TABLE public.users (
-	                id uuid NOT NULL,
-	                ""name"" varchar NOT NULL,
-	                CONSTRAINT users_pkey PRIMARY KEY (id)
-                );");
+        CREATE TABLE public.users (
+	        id uuid primary key,
+	        name varchar not null
+        );
+
+        CREATE TABLE public.currencies (
+            id varchar(5) primary key,
+            name varchar not null
+        );
+
+        CREATE TABLE public.accounts (
+            user_id uuid not null,
+            currency_id varchar(5) not null,
+            balance decimal(18,6) not null,
+            name VARCHAR not null,
+ 
+            primary key (user_id, currency_id),
+            foreign key (user_id) references public.users(id),
+            foreign key (currency_id) references public.currencies(id)
+        );
+
+        CREATE TABLE public.rates (
+            currency_from_id varchar(5) not null,
+            currency_to_id varchar(5) not null,
+            rate decimal(10,8) not null,
+
+            primary key (currency_from_id, currency_to_id),
+            foreign key (currency_from_id) references public.currencies(id),
+            foreign key (currency_to_id) references public.currencies(id)
+        );
+
+");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "users",
-                schema: "public");
+            
         }
     }
 }
