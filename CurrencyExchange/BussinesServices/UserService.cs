@@ -13,7 +13,7 @@ namespace BussinesServices
             _dbContext = dbContext;
         }
 
-        public async Task<IResult<UserResponseDto>> CreateAsync(CreateUserRequestDto dto)
+        public async Task<IResult<UserResponseDto>> CreateAsync(CreateUserRequestDto dto, CancellationToken cancellationToken)
         {
 
             if (dto.Name.Length > User.MaxNameLen)
@@ -21,7 +21,7 @@ namespace BussinesServices
                 return Result.Fail<UserResponseDto>(Errors.MaxUserNameLen(User.MaxNameLen));
             }
 
-            var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == dto.Id);
+            var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == dto.Id, cancellationToken);
 
            
             if(user == null)
@@ -31,8 +31,8 @@ namespace BussinesServices
                     Id = dto.Id,
                     Name = dto.Name,
                 };
-                await _dbContext.Users.AddAsync(user);
-                await _dbContext.SaveChangesAsync();
+                await _dbContext.Users.AddAsync(user, cancellationToken);
+                await _dbContext.SaveChangesAsync(cancellationToken);
             }
 
 
@@ -43,9 +43,9 @@ namespace BussinesServices
             });
         }
 
-        public async Task<IResult<UserResponseDto>> GetAsync(Guid id)
+        public async Task<IResult<UserResponseDto>> GetAsync(Guid id, CancellationToken cancellationToken)
         { 
-            var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == id);
+            var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
 
             if(user == null)
             {

@@ -12,12 +12,12 @@ namespace Api.Controllers
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
         [HttpPost]
-        public async Task<ActionResult> Post(CreateUserRequestDto dto)
+        public async Task<ActionResult> Post(CreateUserRequestDto dto, CancellationToken cancellationToken)
         {
 
             var userService = _serviceProvider.GetRequiredService<UserService>();
 
-            var result = await userService.CreateAsync(dto);
+            var result = await userService.CreateAsync(dto, cancellationToken);
 
             if (result.Error != null)
             {

@@ -2,6 +2,7 @@
 using Dal;
 using Dal.Entities;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using ExchangeResult = BussinesServices.ServiceResult.IResult<BussinesServices.ExchangeResponseDto>;
 
 namespace BussinesServices
@@ -15,7 +16,7 @@ namespace BussinesServices
             _dbContext = dbContext;
         }
 
-        public async Task<ExchangeResult> ExchangeAsync(ExchangeRequestDto dto)
+        public async Task<ExchangeResult> ExchangeAsync(ExchangeRequestDto dto, CancellationToken cancellationToken)
         {
 
             if (dto.Amount <= 0)
@@ -28,19 +29,19 @@ namespace BussinesServices
                 return Result.Fail<ExchangeResponseDto>(Errors.InvalidRate(dto.Rate));
             }
 
-            using (var transaction = await _dbContext.Database.BeginTransactionAsync(System.Data.IsolationLevel.RepeatableRead))
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, cancellationToken))
             {
                 try
                 {
-                    var history = await _dbContext.ExchangeHistory.SingleOrDefaultAsync(x => x.Id == dto.IdempotencyKey);
+                    var history = await _dbContext.ExchangeHistory.SingleOrDefaultAsync(x => x.Id == dto.IdempotencyKey, cancellationToken);
 
                     if (history == null)
                     {
-                        var accounts = await GetAccountsAsync(dto);
+                        var accounts = await GetAccountsAsync(dto, cancellationToken);
 
                         if (accounts.from.Balance < dto.Amount)
                         {
-                            await transaction.CommitAsync();
+                            await transaction.CommitAsync(cancellationToken);
                             return Result.Fail<ExchangeResponseDto>(Errors.SmallBalance(accounts.from.Balance, dto.From, dto.Amount));
                         }
 
@@ -63,7 +64,7 @@ namespace BussinesServices
 
                         };
                         _dbContext.ExchangeHistory.Add(history);
-                        await transaction.CommitAsync();
+                        await transaction.CommitAsync(cancellationToken);
                     }
 
                     return CreateSuccessResult(history);
@@ -91,24 +92,24 @@ namespace BussinesServices
             });
         }
 
-        private async Task<(Account from, Account to)> GetAccountsAsync(ExchangeRequestDto dto)
+        private async Task<(Account from, Account to)> GetAccountsAsync(ExchangeRequestDto dto, CancellationToken cancellationToken)
         {
             var accounts = await _dbContext
                 .Accounts
                 .Where(x => x.UserId == dto.UserId && (x.CurrencyId == dto.From || x.CurrencyId == dto.To))
-                .ToArrayAsync();
+                .ToArrayAsync(cancellationToken);
 
 
             var fromAcc = accounts.SingleOrDefault(x => x.CurrencyId == dto.From);
             var toAcc = accounts.SingleOrDefault(x => x.CurrencyId == dto.To);
 
             return (
-                from: fromAcc ?? await CreateAccountAsync(dto.UserId, dto.From),
-                to: toAcc ?? await CreateAccountAsync(dto.UserId, dto.To)
+                from: fromAcc ?? await CreateAccountAsync(dto.UserId, dto.From, cancellationToken),
+                to: toAcc ?? await CreateAccountAsync(dto.UserId, dto.To, cancellationToken)
             );
         }
 
-        private async Task<Account> CreateAccountAsync(Guid userId, string currencyId) {
+        private async Task<Account> CreateAccountAsync(Guid userId, string currencyId, CancellationToken cancellationToken) {
 
             var acc = new Account
             {
@@ -117,7 +118,7 @@ namespace BussinesServices
                 UserId = userId,
             };
 
-            await _dbContext.Accounts.AddAsync(acc);
+            await _dbContext.Accounts.AddAsync(acc, cancellationToken);
 
             return acc;
         }

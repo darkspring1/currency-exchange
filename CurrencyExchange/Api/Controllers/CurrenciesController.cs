@@ -24,11 +24,11 @@ namespace Api.Controllers
 
 
         [HttpPost("exchange")]
-        public async Task<ActionResult> Exchange(ExchangeRequestDto request)
+        public async Task<ActionResult> Exchange(ExchangeRequestDto request, CancellationToken cancellationToken)
         {
             var exchangeService = _serviceProvider.GetRequiredService<ExchangeService>();
            
-            var result = await exchangeService.ExchangeAsync(request);
+            var result = await exchangeService.ExchangeAsync(request, cancellationToken);
 
             if (result.Error != null)
             {
