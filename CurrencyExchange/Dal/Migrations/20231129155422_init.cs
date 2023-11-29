@@ -47,6 +47,15 @@ namespace Dal.Migrations
             foreign key (currency_to_id) references public.currencies(id)
         );
 
+        CREATE TABLE public.exchange_history (
+            id uuid primary key,
+            user_id uuid not null,
+            currency_from_id varchar(5) not null,
+            currency_to_id varchar(5) not null,
+            rate decimal(10,8) not null,
+            amount decimal(18,6) not null
+        );
+
 ");
         }
 

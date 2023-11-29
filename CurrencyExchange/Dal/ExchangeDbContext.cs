@@ -1,12 +1,15 @@
 ﻿using Dal.Entities;
 using Microsoft.EntityFrameworkCore;
 
+#nullable disable
 namespace Dal
 {
     public class ExchangeDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Account> Accounts { get; set; }
+        public DbSet<ExchangeRate> ExchangeRate { get; set; }
+        public DbSet<ExchangeHistory> ExchangeHistory { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
