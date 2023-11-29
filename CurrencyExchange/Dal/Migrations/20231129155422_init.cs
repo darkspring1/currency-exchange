@@ -40,7 +40,7 @@ namespace Dal.Migrations
         CREATE TABLE public.exchange_rates (
             currency_from_id varchar(5) not null,
             currency_to_id varchar(5) not null,
-            rate decimal(10,8) not null,
+            rate decimal(10,10) not null,
 
             primary key (currency_from_id, currency_to_id),
             foreign key (currency_from_id) references public.currencies(id),
@@ -50,10 +50,13 @@ namespace Dal.Migrations
         CREATE TABLE public.exchange_history (
             id uuid primary key,
             user_id uuid not null,
-            currency_from_id varchar(5) not null,
-            currency_to_id varchar(5) not null,
-            rate decimal(10,8) not null,
-            amount decimal(18,6) not null
+            from_currency_id varchar(5) not null,
+            to_currency_id varchar(5) not null,
+            rate decimal(10,10) not null,
+            fee decimal(2,4) not null,
+            feeAmount decimal(18,6) not null,
+            fromAmount decimal(18,6) not null,
+            toAmount decimal(18,6) not null
         );
 
 ");

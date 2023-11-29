@@ -7,30 +7,31 @@ namespace Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class CurrenciesController : ControllerBase
+    public class CurrenciesController(IServiceProvider serviceProvider, ILogger<CurrenciesController> logger) : ControllerBase
     {
-        private readonly ILogger<CurrenciesController> _logger;
+        private readonly ILogger<CurrenciesController> _logger = logger;
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        public CurrenciesController(ILogger<CurrenciesController> logger)
-        {
-            _logger = logger;
-        }
-        
         [HttpGet]
         public string[] Get()
         {
-            var service = new ExchangeService();
-            service.Change();
             return new [] { "USD", "EUR" };
         }
 
 
         [HttpPost("exchange")]
-        public decimal Exchange(ExchangeRequest request)
+        public async Task<ActionResult> Exchange(ExchangeRequestDto request)
         {
-            var service = new ExchangeService();
-            service.Change();
-            return 1;
+            var exchangeService = _serviceProvider.GetRequiredService<ExchangeService>();
+           
+            var result = await exchangeService.ExchangeAsync(request);
+
+            if (result.Error != null)
+            {
+                return BadRequest(result.Error);
+            }
+
+            return Ok(result.Data);
         }
     }
 }
