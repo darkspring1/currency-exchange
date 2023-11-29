@@ -8,7 +8,6 @@ namespace Dal
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Account> Accounts { get; set; }
-        public DbSet<ExchangeRate> ExchangeRate { get; set; }
         public DbSet<ExchangeHistory> ExchangeHistory { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -22,6 +21,10 @@ namespace Dal
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasDefaultSchema("public");
+
+            modelBuilder
+                .Entity<Account>()
+                .HasKey(x => new { x.UserId, x.CurrencyId });
         }
     }
 }
