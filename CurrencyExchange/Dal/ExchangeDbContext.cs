@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Dal.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dal
 {
     public class ExchangeDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<Account> Accounts { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -18,11 +20,5 @@ namespace Dal
         {
             modelBuilder.HasDefaultSchema("public");
         }
-    }
-
-    public class User
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
     }
 }

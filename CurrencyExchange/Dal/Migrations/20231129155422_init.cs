@@ -37,7 +37,7 @@ namespace Dal.Migrations
             foreign key (currency_id) references public.currencies(id)
         );
 
-        CREATE TABLE public.rates (
+        CREATE TABLE public.exchange_rates (
             currency_from_id varchar(5) not null,
             currency_to_id varchar(5) not null,
             rate decimal(10,8) not null,
