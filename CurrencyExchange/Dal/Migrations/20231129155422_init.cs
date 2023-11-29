@@ -1,4 +1,5 @@
 ﻿
+using Dal.Entities;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -15,10 +16,10 @@ namespace Dal.Migrations
             migrationBuilder.EnsureSchema(
                 name: "public");
 
-            migrationBuilder.Sql(@"
+            migrationBuilder.Sql(@$"
         CREATE TABLE public.users (
 	        id uuid primary key,
-	        name varchar not null
+	        name varchar({User.MaxNameLen}) not null
         );
 
         CREATE TABLE public.currencies (
@@ -30,7 +31,6 @@ namespace Dal.Migrations
             user_id uuid not null,
             currency_id varchar(5) not null,
             balance decimal(18,6) not null,
-            name VARCHAR not null,
  
             primary key (user_id, currency_id),
             foreign key (user_id) references public.users(id),

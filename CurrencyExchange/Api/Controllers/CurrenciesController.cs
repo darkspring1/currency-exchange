@@ -1,7 +1,5 @@
-using Api.Models;
 using BussinesServices;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace Api.Controllers
 {
@@ -12,11 +10,17 @@ namespace Api.Controllers
         private readonly ILogger<CurrenciesController> _logger = logger;
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        [HttpGet]
-        public string[] Get()
-        {
-            return new [] { "USD", "EUR" };
-        }
+        //[HttpGet]
+        //public string[] Get()
+        //{
+        //    return new [] { "USD", "EUR" };
+        //}
+
+        //[HttpGet]
+        //public string[] Post()
+        //{
+        //    return new[] { "USD", "EUR" };
+        //}
 
 
         [HttpPost("exchange")]

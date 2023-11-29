@@ -11,5 +11,8 @@ namespace BussinesServices.ServiceResult
 
         public static ServiceError SmallBalance(decimal userBalance, string currency, decimal amount)
             => new ServiceError(3, $"User balance too small. UserBalance:{userBalance}{currency} Amount:{amount}");
+
+        public static ServiceError MaxUserNameLen(int maxLen)
+            => new ServiceError(4, $"User name lenght must be <= {maxLen}.");
     }
 }

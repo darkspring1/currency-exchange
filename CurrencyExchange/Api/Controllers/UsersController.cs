@@ -1,20 +1,33 @@
 using Api.Models;
+using BussinesServices;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UsersController : ControllerBase
+    public class UsersController(IServiceProvider serviceProvider, ILogger<UsersController> logger) : ControllerBase
     {
-        private readonly ILogger<UsersController> _logger;
+        private readonly ILogger<UsersController> _logger = logger;
+        private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        public UsersController(ILogger<UsersController> logger)
+        [HttpPost]
+        public async Task<ActionResult> Post(CreateUserRequestDto dto)
         {
-            _logger = logger;
+
+            var userService = _serviceProvider.GetRequiredService<UserService>();
+
+            var result = await userService.CreateAsync(dto);
+
+            if (result.Error != null)
+            {
+                return BadRequest(result.Error);
+            }
+
+            return Ok(result.Data);
         }
-        
+
+
         [HttpGet("{userId:guid}/balance")]
         public decimal GetBalance(Guid userId)
         {

@@ -7,6 +7,8 @@
         public static Result Success() => new Result(null);
         public static Result Fail(ServiceError error) => new Result(error);
 
+        public static Result<TResult> Success<TResult>() where TResult : class
+            => new Result<TResult>(null, null);
         public static Result<TResult> Success<TResult>(TResult result) where TResult : class
             => new Result<TResult>(result, null);
         public static Result<TResult> Fail<TResult>(ServiceError error) where TResult : class
