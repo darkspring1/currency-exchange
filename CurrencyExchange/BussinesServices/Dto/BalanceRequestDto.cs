@@ -2,12 +2,12 @@
 {
     public class BalanceRequestDto
     {
-        public Guid UserId { get; set; }
-        public string? CurrencyId { get; set;}
+        public Guid UserId { get; init; }
+        public string? CurrencyId { get; init;}
     }
 
     public class CreateBalanceRequestDto : BalanceRequestDto
     {
-        public decimal Balance { get; set; }
+        public decimal Balance { get; init; }
     }
 }
