@@ -63,6 +63,7 @@ namespace BussinesServices.Services
                     };
                     dbContext.ExchangeHistory.Add(history);
                     await transaction.CommitAsync(cancellationToken);
+                    await dbContext.SaveChangesAsync(cancellationToken);
                 }
 
                 return CreateSuccessResult(history);
