@@ -33,53 +33,50 @@ namespace BussinesServices.Services
                 return Result.Fail<ExchangeResponseDto>(error);
             }
 
-            using (var transaction = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, cancellationToken))
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, cancellationToken);
+            try
             {
-                try
+                var history = await _dbContext.ExchangeHistory.SingleOrDefaultAsync(x => x.Id == dto.IdempotencyKey, cancellationToken);
+
+                if (history == null)
                 {
-                    var history = await _dbContext.ExchangeHistory.SingleOrDefaultAsync(x => x.Id == dto.IdempotencyKey, cancellationToken);
+                    var accounts = await GetAccountsAsync(dto, cancellationToken);
 
-                    if (history == null)
+                    if (accounts.from.Balance < dto.Amount)
                     {
-                        var accounts = await GetAccountsAsync(dto, cancellationToken);
-
-                        if (accounts.from.Balance < dto.Amount)
-                        {
-                            await transaction.CommitAsync(cancellationToken);
-                            return Result.Fail<ExchangeResponseDto>(Errors.SmallBalance(accounts.from.Balance, dto.From, dto.Amount));
-                        }
-
-                        var toAmount = dto.Amount * dto.Rate;
-                        var feeAmount = toAmount * dto.Fee;
-
-                        accounts.from.Balance -= dto.Amount;
-                        accounts.to.Balance += toAmount - feeAmount;
-
-                        history = new ExchangeHistory
-                        {
-                            Id = dto.IdempotencyKey,
-                            FromCurrencyId = dto.From,
-                            ToCurrencyId = dto.To,
-                            FromAmount = dto.Amount,
-                            ToAmount = toAmount,
-                            Rate = dto.Rate,
-                            Fee = dto.Fee,
-                            FeeAmount = feeAmount
-
-                        };
-                        _dbContext.ExchangeHistory.Add(history);
                         await transaction.CommitAsync(cancellationToken);
+                        return Result.Fail<ExchangeResponseDto>(Errors.SmallBalance(accounts.from.Balance, dto.From, dto.Amount));
                     }
 
-                    return CreateSuccessResult(history);
-                }
-                catch (Exception)
-                {
-                    transaction.Rollback();
-                    throw;
-                }
-            }
+                    var toAmount = dto.Amount * dto.Rate;
+                    var feeAmount = toAmount * dto.Fee;
 
+                    accounts.from.Balance -= dto.Amount;
+                    accounts.to.Balance += toAmount - feeAmount;
+
+                    history = new ExchangeHistory
+                    {
+                        Id = dto.IdempotencyKey,
+                        FromCurrencyId = dto.From,
+                        ToCurrencyId = dto.To,
+                        FromAmount = dto.Amount,
+                        ToAmount = toAmount,
+                        Rate = dto.Rate,
+                        Fee = dto.Fee,
+                        FeeAmount = feeAmount
+
+                    };
+                    _dbContext.ExchangeHistory.Add(history);
+                    await transaction.CommitAsync(cancellationToken);
+                }
+
+                return CreateSuccessResult(history);
+            }
+            catch (Exception e)
+            {
+                transaction.Rollback();
+                throw;
+            }
         }
 
         private ServiceError? ValidateDecimal(string name, decimal value)

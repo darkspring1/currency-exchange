@@ -44,9 +44,9 @@ namespace Dal.Migrations
             to_currency_id varchar(5) not null,
             rate decimal(10,10) not null,
             fee decimal(4,4) not null,
-            feeAmount decimal(18,6) not null,
-            fromAmount decimal(18,6) not null,
-            toAmount decimal(18,6) not null
+            fee_amount decimal(18,6) not null,
+            from_amount decimal(18,6) not null,
+            to_amount decimal(18,6) not null
         );");
         }
 

@@ -12,20 +12,25 @@ public class ExchangeTest(WebApplicationFactory<Program> factory) : E2EBaseTest(
     {
         const decimal fromBalance = 100;
         const decimal toBalance = 3;
+        const decimal usdToRubRate = 0.011m;
         var newUser = await Client.CreateRandomUserAsync();
         await Task.WhenAll(Client.CreateUsdAsync(), Client.CreateRubAsync());
         
         await Task.WhenAll(
             Client.SetUserBalanceAsync(newUser.Id.ToString(), "usd", fromBalance),
             Client.SetUserBalanceAsync(newUser.Id.ToString(), "rub", toBalance));
-        
-        // Assert.NotNull(newUser);
-        //
-        // var loadedUser = await Client.GetUserAsync<UserResponseDto>(newUser.Id);
-        //
-        // Assert.True(newUser.Name.Length > 0);
-        // Assert.NotEqual(newUser.Id, Guid.Empty);
-        // Assert.Equal(loadedUser.Id, newUser.Id);
-        // Assert.Equal(newUser.Name, newUser.Name);
+
+        var exchangeResponse = await Client.ExchangeAsync<ExchangeResponseDto>(new ExchangeRequestDto
+        {
+            IdempotencyKey = Guid.NewGuid(),
+            Amount = 100,
+            UserId = newUser.Id,
+            Fee = 5,
+            Rate = usdToRubRate,
+            From = "usd",
+            To = "rub"
+        });
+
+        Assert.NotNull(exchangeResponse);
     }
 }
