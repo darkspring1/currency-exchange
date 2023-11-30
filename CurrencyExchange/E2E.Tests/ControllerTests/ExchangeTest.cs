@@ -25,12 +25,12 @@ public class ExchangeTest(WebApplicationFactory<Program> factory) : E2EBaseTest(
         Assert.NotNull(exchangeResponse);
         Assert.Equal(idempotencyKey, exchangeResponse.IdempotencyKey);
         Assert.Equal(ExchangeAmount, exchangeResponse.FromAmount);
-        Assert.Equal(toAmount, exchangeResponse.ToAmount);
+        Assert.Equal(ToAmount, exchangeResponse.ToAmount);
         Assert.Equal(newUser.Id, exchangeResponse.UserId);
         Assert.Equal("RUB", exchangeResponse.From);
         Assert.Equal("USD", exchangeResponse.To);
         Assert.Equal(Fee, exchangeResponse.Fee);
-        Assert.Equal(feeAmount, exchangeResponse.FeeAmount);
+        Assert.Equal(FeeAmount, exchangeResponse.FeeAmount);
         Assert.Equal(Rate, exchangeResponse.Rate);
         
         var balances = await Task.WhenAll(
@@ -45,8 +45,8 @@ public class ExchangeTest(WebApplicationFactory<Program> factory) : E2EBaseTest(
             Assert.Equal(newUser.Id, bDto.UserId);
         }
         
-        AssertBalance(expectedFromBalance, "RUB", balances[0]);
-        AssertBalance(expectedToBalance, "USD", balances[1]);
+        AssertBalance(ExpectedFromBalance, "RUB", balances[0]);
+        AssertBalance(ExpectedToBalance, "USD", balances[1]);
     }
     
     [Fact]
@@ -70,12 +70,12 @@ public class ExchangeTest(WebApplicationFactory<Program> factory) : E2EBaseTest(
         Assert.NotNull(exchangeResponse);
         Assert.Equal(idempotencyKey, exchangeResponse.IdempotencyKey);
         Assert.Equal(ExchangeAmount, exchangeResponse.FromAmount);
-        Assert.Equal(toAmount, exchangeResponse.ToAmount);
+        Assert.Equal(ToAmount, exchangeResponse.ToAmount);
         Assert.Equal(newUser.Id, exchangeResponse.UserId);
         Assert.Equal("RUB", exchangeResponse.From);
         Assert.Equal("USD", exchangeResponse.To);
         Assert.Equal(Fee, exchangeResponse.Fee);
-        Assert.Equal(feeAmount, exchangeResponse.FeeAmount);
+        Assert.Equal(FeeAmount, exchangeResponse.FeeAmount);
         Assert.Equal(Rate, exchangeResponse.Rate);
         
         var balances = await Task.WhenAll(
@@ -90,8 +90,8 @@ public class ExchangeTest(WebApplicationFactory<Program> factory) : E2EBaseTest(
             Assert.Equal(newUser.Id, bDto.UserId);
         }
         
-        AssertBalance(expectedFromBalance, "RUB", balances[0]);
-        AssertBalance(expectedToBalance, "USD", balances[1]);
+        AssertBalance(ExpectedFromBalance, "RUB", balances[0]);
+        AssertBalance(ExpectedToBalance, "USD", balances[1]);
     }
 
     private async Task<UserResponseDto> CreateUserAsync()
@@ -112,9 +112,9 @@ public class ExchangeTest(WebApplicationFactory<Program> factory) : E2EBaseTest(
     const decimal Fee = 0.05m;
     const decimal ExchangeAmount = 100;
         
-    const decimal expectedFromBalance = 1000 - ExchangeAmount;
-    const decimal toAmount = ExchangeAmount * Rate;
-    const decimal feeAmount = toAmount * Fee;
+    const decimal ExpectedFromBalance = 1000 - ExchangeAmount;
+    const decimal ToAmount = ExchangeAmount * Rate;
+    const decimal FeeAmount = ToAmount * Fee;
 
-    const decimal expectedToBalance = ToBalance + toAmount - feeAmount;
+    const decimal ExpectedToBalance = ToBalance + ToAmount - FeeAmount;
 }
