@@ -53,7 +53,7 @@ public class UsersTest(WebApplicationFactory<Program> factory) : E2EBaseTest(fac
     }
     
     [Fact]
-    public async Task GetUserBalance_NotFound()
+    public async Task GetUserBalance_NoExistedUser_NotFound()
     {
         var notExistedUserId = Guid.NewGuid().ToString();
         var response = await Client.GetUserBalanceAsync(notExistedUserId, "usd");
@@ -62,6 +62,7 @@ public class UsersTest(WebApplicationFactory<Program> factory) : E2EBaseTest(fac
     }
     
     [Theory]
+    [InlineData(ValidGuid, "u")]
     [InlineData(ValidGuid, "us")]
     [InlineData(ValidGuid, "usdd")]
     public async Task GetUserBalance_Validation(string userId, string currencyId)
