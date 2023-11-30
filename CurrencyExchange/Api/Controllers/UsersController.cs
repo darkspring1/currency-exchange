@@ -14,10 +14,17 @@ namespace Api.Controllers
         [HttpPost]
         public async Task<ActionResult> Post(CreateUserRequestDto dto, CancellationToken cancellationToken)
         {
-
             var userService = _serviceProvider.GetRequiredService<UserService>();
-
             var result = await userService.CreateAsync(dto, cancellationToken);
+
+            return ServiceResult(result);
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult> Get(Guid id, CancellationToken cancellationToken)
+        {
+            var userService = _serviceProvider.GetRequiredService<UserService>();
+            var result = await userService.GetAsync(id, cancellationToken);
 
             return ServiceResult(result);
         }
