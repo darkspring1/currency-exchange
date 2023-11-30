@@ -33,32 +33,24 @@ public class UsersTest(WebApplicationFactory<Program> factory) : E2EBaseTest(fac
         var newUser = await Client.CreateRandomUserAsync();
         await Client.CreateUsdAsync();
         Assert.NotNull(newUser);
-        
+
+
+        void AssertBalance(BalanceResponseDto? bResponse)
+        {
+            Assert.NotNull(bResponse);
+            Assert.Equal(expectedBalance, bResponse.Balance);
+            Assert.Equal(currency.ToUpper(), bResponse.CurrencyId);
+            Assert.Equal(newUser.Id, bResponse.UserId);
+        }
+
         var dto = new CreateBalanceDto { Balance = expectedBalance };
         var balanceResponse = await Client.CreateUserBalanceAsync<BalanceResponseDto>(newUser.Id.ToString(), currency, dto);
 
-        Assert.NotNull(balanceResponse);
-        Assert.Equal(expectedBalance, balanceResponse.Balance);
-        Assert.Equal(currency.ToUpper(), balanceResponse.CurrencyId);
-        Assert.Equal(newUser.Id, balanceResponse.UserId);
+        AssertBalance(balanceResponse);
+
+        balanceResponse = await Client.GetUserBalanceAsync<BalanceResponseDto>(newUser.Id.ToString(), currency);
+        AssertBalance(balanceResponse);
     }
-
-    [Theory]
-    [InlineData("CC78522D-CEE8-4EE6-93A5-FD8AB876C666")]
-    [InlineData("00000000-0000-0000-0000-AAABBBCCCDDD")]
-    public async Task GetUserBalance_Success(Guid userId)
-    {
-      
-        var user = await Client.CreateRandomUserAsync();
-
-
-        // Act
-        var response = await Client.GetAsync($"/users/{userId}/balance");
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-    }
-
-
     
     [Theory]
     //[InlineData("123", "123")]
