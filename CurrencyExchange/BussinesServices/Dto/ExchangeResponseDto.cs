@@ -10,4 +10,5 @@ public class ExchangeResponseDto
     public decimal ToAmount { get; set; }
     public decimal Fee { get; set; }
     public decimal FeeAmount { get; set; }
+    public decimal Rate { get; set; }
 }

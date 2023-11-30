@@ -51,6 +51,7 @@ namespace BussinesServices.Services
                     history = new ExchangeHistory
                     {
                         Id = dto.IdempotencyKey,
+                        UserId = dto.UserId,
                         FromCurrencyId = dto.From,
                         ToCurrencyId = dto.To,
                         FromAmount = dto.Amount,
@@ -87,8 +88,10 @@ namespace BussinesServices.Services
                 FeeAmount = history.FeeAmount,
                 From = history.FromCurrencyId,
                 To = history.ToCurrencyId,
+                FromAmount = history.FromAmount,
                 ToAmount = history.ToAmount,
                 UserId = history.UserId,
+                Rate = history.Rate
             });
         }
 
