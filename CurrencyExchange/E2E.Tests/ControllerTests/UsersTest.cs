@@ -77,10 +77,23 @@ public class UsersTest(WebApplicationFactory<Program> factory) : E2EBaseTest(fac
     [InlineData(ValidGuid, "u")]
     [InlineData(ValidGuid, "us")]
     [InlineData(ValidGuid, "usdd")]
+    [InlineData(ValidGuid, "1")]
+    [InlineData(ValidGuid, "_")]
+    [InlineData(ValidGuid, "_#$")]
     public async Task GetUserBalance_Validation(string userId, string currencyId)
     {
         var response = await Client.GetUserBalanceAsync<ServiceError>(userId, currencyId, HttpStatusCode.BadRequest);
         AssertHelpers.ExpectedServiceErrorAsync(response);
+    }
+    
+    [Theory]
+    [InlineData("", "")]
+    [InlineData("CC78522D-CEE8-4EE6-93A5-FD8AB876C66_", "usd")]
+    public async Task GetUserBalance_BadRoute_NotFound(string userId, string currencyId)
+    {
+        var response = await Client.GetUserBalanceAsync(userId, currencyId);
+        
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
 
