@@ -25,9 +25,9 @@ namespace BussinesServices.Services
 
         }
 
-        public async Task<IResult<BalanceResponseDto>> CreateOrUpdateAsync(BalanceRequestDto dto, CancellationToken cancellationToken)
+        public async Task<IResult<BalanceResponseDto>> CreateOrUpdateAsync(CreateBalanceRequestDto dto, CancellationToken cancellationToken)
         {
-            var badResponse = ValidateRequest(dto);
+            var badResponse = ValidateCreateRequest(dto);
 
             if(badResponse != null)
             {
@@ -52,13 +52,18 @@ namespace BussinesServices.Services
         }
 
 
-        private IResult<BalanceResponseDto>? ValidateRequest(BalanceRequestDto dto)
+        private IResult<BalanceResponseDto>? ValidateCreateRequest(CreateBalanceRequestDto dto)
         {
             var error = ValidatePositive("Balance", dto.Balance);
 
-            if(error != null) { return Fail(error); }
+            if (error != null) { return Fail(error); }
 
-            error = ValidateString("CurrencyId", dto.CurrencyId, Currency.MaxIdLen);
+            return ValidateRequest(dto);
+        }
+
+        private IResult<BalanceResponseDto>? ValidateRequest(BalanceRequestDto dto)
+        {
+            var error = ValidateString("CurrencyId", dto.CurrencyId, Currency.MaxIdLen);
 
             if (error != null) { return Fail(error); }
 
