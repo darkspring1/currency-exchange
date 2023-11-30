@@ -25,11 +25,19 @@ namespace Api.Controllers
             return Ok(result.Data);
         }
 
-        //[HttpGet]
-        //public string[] Post()
-        //{
-        //    return new[] { "USD", "EUR" };
-        //}
+        [HttpPost]
+        public async Task<ActionResult> Post(CreateCurrencyDto dto, CancellationToken cancellation)
+        {
+            var currencyService = _serviceProvider.GetRequiredService<CurrencyService>();
+            var result = await currencyService.CreateAsync(dto, cancellation);
+
+            if (result.Error != null)
+            {
+                return BadRequest(result.Error);
+            }
+
+            return Ok(result.Data);
+        }
 
 
         [HttpPost("exchange")]
