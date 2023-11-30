@@ -11,11 +11,19 @@ namespace Api.Controllers
         private readonly ILogger<CurrenciesController> _logger = logger;
         private readonly IServiceProvider _serviceProvider = serviceProvider;
 
-        //[HttpGet]
-        //public string[] Get()
-        //{
-        //    return new [] { "USD", "EUR" };
-        //}
+        [HttpGet("{id}")]
+        public async Task<ActionResult> Get(string? id, CancellationToken cancellation)
+        {
+            var currencyService = _serviceProvider.GetRequiredService<CurrencyService>();
+            var result = await currencyService.GetAsync(id, cancellation);
+
+            if (result.Error != null)
+            {
+                return BadRequest(result.Error);
+            }
+
+            return Ok(result.Data);
+        }
 
         //[HttpGet]
         //public string[] Post()
