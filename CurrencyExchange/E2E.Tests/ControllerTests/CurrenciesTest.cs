@@ -7,12 +7,8 @@ using BussinesServices.ServiceResult;
 
 namespace E2E.Tests.ControllerTests;
 
-public class CurrenciesTest : IClassFixture<WebApplicationFactory<Program>>
+public class CurrenciesTest(WebApplicationFactory<Program> factory) : E2EBaseTest(factory)
 {
-    public CurrenciesTest(WebApplicationFactory<Program> factory)
-    {
-        _factory = factory;
-    }
 
     [Fact]
     public async Task GetCurrencies_Success()
@@ -57,7 +53,7 @@ public class CurrenciesTest : IClassFixture<WebApplicationFactory<Program>>
         AssertHelpers.ExpectedServiceErrorAsync(response);
     }
 
-    private HttpClient Client => _factory.CreateClient();
+    
     private const string MoreThan100SymbolsString = "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901";
     private readonly WebApplicationFactory<Program> _factory;
 }
