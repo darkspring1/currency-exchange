@@ -48,6 +48,51 @@ public class ExchangeTest(WebApplicationFactory<Program> factory) : E2EBaseTest(
         AssertBalance(expectedFromBalance, "RUB", balances[0]);
         AssertBalance(expectedToBalance, "USD", balances[1]);
     }
+    
+    [Fact]
+    public async Task Idempotency()
+    {
+        var newUser = await CreateUserAsync();
+        var idempotencyKey = Guid.NewGuid();
+        var dto = new ExchangeRequestDto
+        {
+            IdempotencyKey = idempotencyKey,
+            Amount = ExchangeAmount,
+            UserId = newUser.Id,
+            Fee = Fee,
+            Rate = Rate,
+            From = "rub",
+            To = "usd"
+        };
+        var exchangeResponse = await Client.ExchangeAsync<ExchangeResponseDto>(dto);
+        exchangeResponse = await Client.ExchangeAsync<ExchangeResponseDto>(dto);
+
+        Assert.NotNull(exchangeResponse);
+        Assert.Equal(idempotencyKey, exchangeResponse.IdempotencyKey);
+        Assert.Equal(ExchangeAmount, exchangeResponse.FromAmount);
+        Assert.Equal(toAmount, exchangeResponse.ToAmount);
+        Assert.Equal(newUser.Id, exchangeResponse.UserId);
+        Assert.Equal("RUB", exchangeResponse.From);
+        Assert.Equal("USD", exchangeResponse.To);
+        Assert.Equal(Fee, exchangeResponse.Fee);
+        Assert.Equal(feeAmount, exchangeResponse.FeeAmount);
+        Assert.Equal(Rate, exchangeResponse.Rate);
+        
+        var balances = await Task.WhenAll(
+            Client.GetUserBalanceAsync<BalanceResponseDto>(newUser.Id.ToString(), "rub"),
+            Client.GetUserBalanceAsync<BalanceResponseDto>(newUser.Id.ToString(), "usd"));
+
+        void AssertBalance(decimal expectedBalance, string expectedCurrencyId, BalanceResponseDto? bDto)
+        {
+            Assert.NotNull(bDto);
+            Assert.Equal(expectedBalance, bDto.Balance);
+            Assert.Equal(expectedCurrencyId, bDto.CurrencyId);
+            Assert.Equal(newUser.Id, bDto.UserId);
+        }
+        
+        AssertBalance(expectedFromBalance, "RUB", balances[0]);
+        AssertBalance(expectedToBalance, "USD", balances[1]);
+    }
 
     private async Task<UserResponseDto> CreateUserAsync()
     {
