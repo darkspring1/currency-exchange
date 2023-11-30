@@ -7,6 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddScoped<ExchangeService>();
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<CurrencyService>();
+builder.Services.AddScoped<BalanceService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

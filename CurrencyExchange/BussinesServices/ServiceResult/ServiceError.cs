@@ -2,7 +2,7 @@
 {
     public class ServiceError(int code, string message)
     {
-        public readonly int Code = code;
-        public readonly string Message = message;
+        public int Code { get; } = code;
+        public string Message { get; } = message;
     }
 }
