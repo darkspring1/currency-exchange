@@ -9,14 +9,8 @@ using ExchangeResult = BussinesServices.ServiceResult.IResult<BussinesServices.D
 namespace BussinesServices.Services
 {
 
-    public class ExchangeService
+    public class ExchangeService(ExchangeDbContext dbContext)
     {
-
-        public ExchangeService(ExchangeDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         public async Task<ExchangeResult> ExchangeAsync(ExchangeRequestDto dto, CancellationToken cancellationToken)
         {
 
@@ -33,10 +27,10 @@ namespace BussinesServices.Services
                 return Result.Fail<ExchangeResponseDto>(error);
             }
 
-            await using var transaction = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, cancellationToken);
+            await using var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, cancellationToken);
             try
             {
-                var history = await _dbContext.ExchangeHistory.SingleOrDefaultAsync(x => x.Id == dto.IdempotencyKey, cancellationToken);
+                var history = await dbContext.ExchangeHistory.SingleOrDefaultAsync(x => x.Id == dto.IdempotencyKey, cancellationToken);
 
                 if (history == null)
                 {
@@ -66,7 +60,7 @@ namespace BussinesServices.Services
                         FeeAmount = feeAmount
 
                     };
-                    _dbContext.ExchangeHistory.Add(history);
+                    dbContext.ExchangeHistory.Add(history);
                     await transaction.CommitAsync(cancellationToken);
                 }
 
@@ -79,14 +73,9 @@ namespace BussinesServices.Services
             }
         }
 
-        private ServiceError? ValidateDecimal(string name, decimal value)
+        private static ServiceError? ValidateDecimal(string name, decimal value)
         {
-            if (value <= 0)
-            {
-                return Errors.PositiveValue(name);
-            }
-
-            return null;
+            return value <= 0 ? Errors.PositiveValue(name) : null;
         }
 
         private ExchangeResult CreateSuccessResult(ExchangeHistory history)
@@ -105,7 +94,7 @@ namespace BussinesServices.Services
 
         private async Task<(Account from, Account to)> GetAccountsAsync(ExchangeRequestDto dto, CancellationToken cancellationToken)
         {
-            var accounts = await _dbContext
+            var accounts = await dbContext
                 .Accounts
                 .Where(x => x.UserId == dto.UserId && (x.CurrencyId == dto.From || x.CurrencyId == dto.To))
                 .ToArrayAsync(cancellationToken);
@@ -130,11 +119,9 @@ namespace BussinesServices.Services
                 UserId = userId,
             };
 
-            await _dbContext.Accounts.AddAsync(acc, cancellationToken);
+            await dbContext.Accounts.AddAsync(acc, cancellationToken);
 
             return acc;
         }
-
-        private readonly ExchangeDbContext _dbContext;
     }
 }
