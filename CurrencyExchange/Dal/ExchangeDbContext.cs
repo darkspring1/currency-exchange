@@ -7,6 +7,7 @@ namespace Dal
     public class ExchangeDbContext : DbContext
     {
         public DbSet<User> Users { get; set; }
+        public DbSet<Currency> Currencies { get; set; }
         public DbSet<Account> Accounts { get; set; }
         public DbSet<ExchangeHistory> ExchangeHistory { get; set; }
 

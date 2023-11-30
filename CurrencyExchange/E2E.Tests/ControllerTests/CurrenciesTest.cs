@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
-using System;
 using System.Net;
 
 namespace E2E.Tests.ControllerTests;

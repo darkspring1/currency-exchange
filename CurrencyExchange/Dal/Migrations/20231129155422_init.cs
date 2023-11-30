@@ -24,7 +24,7 @@ namespace Dal.Migrations
 
         CREATE TABLE public.currencies (
             id varchar(5) primary key,
-            name varchar not null
+            name varchar({Currency.MaxNameLen}) not null
         );
 
         CREATE TABLE public.accounts (
