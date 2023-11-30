@@ -52,9 +52,17 @@ public class UsersTest(WebApplicationFactory<Program> factory) : E2EBaseTest(fac
         AssertBalance(balanceResponse);
     }
     
+    [Fact]
+    public async Task GetUserBalance_NotFound()
+    {
+        var notExistedUserId = Guid.NewGuid().ToString();
+        var response = await Client.GetUserBalanceAsync(notExistedUserId, "usd");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+    
     [Theory]
-    //[InlineData("123", "123")]
-    [InlineData(ValidGuid, "usd")]
+    [InlineData(ValidGuid, "")]
     //[InlineData("", "")]
 
     //"CC78522D-CEE8-4EE6-93A5-FD8AB876C666"
