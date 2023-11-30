@@ -72,9 +72,9 @@ namespace BussinesServices.Services
 
                 return CreateSuccessResult(history);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                transaction.Rollback();
+                await transaction.RollbackAsync(cancellationToken);
                 throw;
             }
         }
