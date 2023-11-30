@@ -19,14 +19,17 @@ namespace BussinesServices
         public async Task<ExchangeResult> ExchangeAsync(ExchangeRequestDto dto, CancellationToken cancellationToken)
         {
 
-            if (dto.Amount <= 0)
+            var error = ValidateDecimal("Amount", dto.Amount);
+
+            if (error != null)
             {
-                return Result.Fail<ExchangeResponseDto>(Errors.InvalidAmount(dto.Amount));
+                return Result.Fail<ExchangeResponseDto>(error);
             }
 
-            if (dto.Rate <= 0)
+            error = ValidateDecimal("Rate", dto.Rate);
+            if (error != null)
             {
-                return Result.Fail<ExchangeResponseDto>(Errors.InvalidRate(dto.Rate));
+                return Result.Fail<ExchangeResponseDto>(error);
             }
 
             using (var transaction = await _dbContext.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, cancellationToken))
@@ -76,6 +79,16 @@ namespace BussinesServices
                 }
             }
 
+        }
+
+        private ServiceError? ValidateDecimal(string name, decimal value)
+        {
+            if (value <= 0)
+            {
+                return Errors.PositiveValue(name);
+            }
+
+            return null;
         }
 
         private ExchangeResult CreateSuccessResult(ExchangeHistory history)

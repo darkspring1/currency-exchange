@@ -16,9 +16,10 @@ namespace BussinesServices
         public async Task<IResult<UserResponseDto>> CreateAsync(CreateUserRequestDto dto, CancellationToken cancellationToken)
         {
 
-            if (dto.Name.Length > User.MaxNameLen)
+            var error = ValidateString("Namme", dto.Name, User.MaxNameLen);
+            if (error != null)
             {
-                return Result.Fail<UserResponseDto>(Errors.MaxUserNameLen(User.MaxNameLen));
+                return Result.Fail<UserResponseDto>(error);
             }
 
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == dto.Id, cancellationToken);
@@ -29,7 +30,7 @@ namespace BussinesServices
                 user = new User
                 {
                     Id = dto.Id,
-                    Name = dto.Name,
+                    Name = dto.Name!,
                 };
                 await _dbContext.Users.AddAsync(user, cancellationToken);
                 await _dbContext.SaveChangesAsync(cancellationToken);
@@ -57,6 +58,23 @@ namespace BussinesServices
                 Id = user.Id,
                 Name = user.Name
             });
+        }
+
+
+        //todo: move to base class
+        private ServiceError? ValidateString(string name, string? value, int maxLen)
+        {
+            if (string.IsNullOrWhiteSpace(value) || string.IsNullOrEmpty(value))
+            {
+                return Errors.EmptyString(name);
+            }
+
+            if (value.Length > maxLen)
+            {
+                return Errors.MaxLen(name, maxLen);
+            }
+
+            return null;
         }
 
         private readonly ExchangeDbContext _dbContext;
