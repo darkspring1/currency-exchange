@@ -1,4 +1,3 @@
-using Api.Models;
 using BussinesServices.Dto;
 using BussinesServices.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -28,17 +27,5 @@ namespace Api.Controllers
             return Ok(result.Data);
         }
 
-
-        [HttpGet("{userId:guid}/balance")]
-        public decimal GetBalance(Guid userId)
-        {
-            return 1;
-        }
-
-        [HttpPut("{userId:guid}/balance")]
-        public decimal UpdateBalance(Guid userId, [FromBody]UpdateBalanceRequest request)
-        {
-            return 1;
-        }
     }
 }
