@@ -27,6 +27,11 @@ namespace E2E.Tests.Extensions
             Assert.Equal(expectedCode, response.StatusCode);
             return await response.Content.ReadFromJsonAsync<T>();
         }
+        
+        public static Task<HttpResponseMessage> GetUserAsync(this HttpClient client, string id)
+        {
+            return client.GetAsync($"/users/{id}");
+        }
 
         public static async Task<T?> CreateUserBalanceAsync<T>(this HttpClient client, string userId, string currencyId, CreateBalanceDto dto, HttpStatusCode expectedCode = HttpStatusCode.OK)
         {

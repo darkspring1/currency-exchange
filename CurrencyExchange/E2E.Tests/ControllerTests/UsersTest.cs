@@ -24,6 +24,25 @@ public class UsersTest(WebApplicationFactory<Program> factory) : E2EBaseTest(fac
         Assert.Equal(loadedUser.Id, newUser.Id);
         Assert.Equal(newUser.Name, newUser.Name);
     }
+    
+   
+    [Fact]
+    public async Task GetNotExistedUser_NotFound()
+    {
+        var notExistedUserId = Guid.NewGuid().ToString();
+        var response = await Client.GetUserAsync(notExistedUserId);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+    
+    [Theory]
+    [InlineData("CA3C9B90-9844-479D-B97C-58DD42FFFFDF")]
+    [InlineData("_A3C9B90-9844-479D-B97C-58DD42FFFFD_")]
+    [InlineData("_")]
+    public async Task GetUser_InvalidId_NotFound(string invalidUserId)
+    {
+        var response = await Client.GetUserAsync(invalidUserId);
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
 
     [Fact]
     public async Task CreateUserBalance_Success()
