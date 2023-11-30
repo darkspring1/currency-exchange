@@ -6,7 +6,7 @@ namespace Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class CurrenciesController(IServiceProvider serviceProvider, ILogger<CurrenciesController> logger) : ControllerBase
+    public class CurrenciesController(IServiceProvider serviceProvider, ILogger<CurrenciesController> logger) : BaseController
     {
         private readonly ILogger<CurrenciesController> _logger = logger;
         private readonly IServiceProvider _serviceProvider = serviceProvider;
@@ -17,12 +17,7 @@ namespace Api.Controllers
             var currencyService = _serviceProvider.GetRequiredService<CurrencyService>();
             var result = await currencyService.GetAsync(id, cancellation);
 
-            if (result.Error != null)
-            {
-                return BadRequest(result.Error);
-            }
-
-            return Ok(result.Data);
+            return ServiceResult(result);
         }
 
         [HttpPost]
@@ -31,12 +26,7 @@ namespace Api.Controllers
             var currencyService = _serviceProvider.GetRequiredService<CurrencyService>();
             var result = await currencyService.CreateAsync(dto, cancellation);
 
-            if (result.Error != null)
-            {
-                return BadRequest(result.Error);
-            }
-
-            return Ok(result.Data);
+            return ServiceResult(result);
         }
 
 
@@ -47,12 +37,7 @@ namespace Api.Controllers
            
             var result = await exchangeService.ExchangeAsync(request, cancellationToken);
 
-            if (result.Error != null)
-            {
-                return BadRequest(result.Error);
-            }
-
-            return Ok(result.Data);
+            return ServiceResult(result);
         }
     }
 }

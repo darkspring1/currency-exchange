@@ -6,7 +6,7 @@ namespace Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class UsersController(IServiceProvider serviceProvider, ILogger<UsersController> logger) : ControllerBase
+    public class UsersController(IServiceProvider serviceProvider, ILogger<UsersController> logger) : BaseController
     {
         private readonly ILogger<UsersController> _logger = logger;
         private readonly IServiceProvider _serviceProvider = serviceProvider;
@@ -19,12 +19,7 @@ namespace Api.Controllers
 
             var result = await userService.CreateAsync(dto, cancellationToken);
 
-            if (result.Error != null)
-            {
-                return BadRequest(result.Error);
-            }
-
-            return Ok(result.Data);
+            return ServiceResult(result);
         }
 
     }
