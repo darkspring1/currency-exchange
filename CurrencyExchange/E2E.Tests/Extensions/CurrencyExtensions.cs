@@ -7,6 +7,12 @@ namespace E2E.Tests.Extensions
 {
     internal static class CurrencyExtensions
     {
+        public static async Task CreateUsdAsync(this HttpClient client)
+        {
+            var response = await client.PostAsJsonAsync("/currencies", new CreateCurrencyDto { Id = "usd", Name = "United States Dollar"});
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+        
         public static async Task<T?> CreateCurrencyAsync<T>(this HttpClient client, CreateCurrencyDto dto, HttpStatusCode expectedCode = HttpStatusCode.OK)
         {
             var response = await client.PostAsJsonAsync("/currencies", dto);

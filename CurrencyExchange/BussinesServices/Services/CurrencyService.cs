@@ -30,7 +30,7 @@ namespace BussinesServices.Services
                 return Fail(error);
             }
 
-            var currency = await _dbContext.Currencies.SingleOrDefaultAsync(x => x.Id == dto.Id, cancellationToken);
+            var currency = await _dbContext.Currencies.SingleOrDefaultAsync(x => x.Id == dto.Id!.ToUpper(), cancellationToken);
 
             if (currency == null)
             {

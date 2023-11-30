@@ -24,6 +24,5 @@ namespace Api.Controllers
 
         private readonly ILogger<CurrenciesController> _logger = logger;
         private CurrencyService CurrencyService => GetRequired<CurrencyService>();
-        private ExchangeService ExchangeService => GetRequired<ExchangeService>();
     }
 }
