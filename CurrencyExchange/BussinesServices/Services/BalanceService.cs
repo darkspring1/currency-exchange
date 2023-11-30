@@ -63,11 +63,11 @@ namespace BussinesServices.Services
 
         private IResult<BalanceResponseDto>? ValidateRequest(BalanceRequestDto dto)
         {
-            var error = ValidateString("CurrencyId", dto.CurrencyId, Currency.MaxIdLen);
-
+            var error = ValidateEmptyString("CurrencyId", dto.CurrencyId);
             if (error != null) { return Fail(error); }
 
-            return null;
+            error = ValidateCurrencyIdLen(nameof(dto.CurrencyId), dto.CurrencyId);
+            return error != null ? Fail(error) : null;
         }
 
         private Task<Account?> LoadAccountAsync(BalanceRequestDto dto, CancellationToken cancellation)

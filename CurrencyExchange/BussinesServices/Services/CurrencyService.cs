@@ -18,7 +18,7 @@ namespace BussinesServices.Services
         public async Task<IResult<CurrencyResponseDto>> CreateAsync(CreateCurrencyDto dto, CancellationToken cancellationToken)
         {
 
-            var error = ValidateString("Id", dto.Id, Currency.MaxIdLen);
+            var error = ValidateString("Id", dto.Id, Currency.IdLen);
             if(error != null)
             {
                 return Fail(error);
@@ -48,7 +48,7 @@ namespace BussinesServices.Services
 
         public async Task<IResult<CurrencyResponseDto>> GetAsync(string? id, CancellationToken cancellationToken)
         {
-            var error = ValidateString("Id", id, Currency.MaxIdLen);
+            var error = ValidateString("Id", id, Currency.IdLen);
             if (error != null)
             {
                 return Fail(error);

@@ -62,15 +62,11 @@ public class UsersTest(WebApplicationFactory<Program> factory) : E2EBaseTest(fac
     }
     
     [Theory]
-    [InlineData(ValidGuid, "")]
-    //[InlineData("", "")]
-
-    //"CC78522D-CEE8-4EE6-93A5-FD8AB876C666"
+    [InlineData(ValidGuid, "us")]
+    [InlineData(ValidGuid, "usdd")]
     public async Task GetUserBalance_Validation(string userId, string currencyId)
     {
-        // Act
-        var response = await Client.GetUserBalanceAsync<ServiceError>(userId, currencyId, HttpStatusCode.NotFound);
-
+        var response = await Client.GetUserBalanceAsync<ServiceError>(userId, currencyId, HttpStatusCode.BadRequest);
         AssertHelpers.ExpectedServiceErrorAsync(response);
     }
 

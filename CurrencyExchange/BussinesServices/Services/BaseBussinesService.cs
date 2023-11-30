@@ -1,5 +1,6 @@
 ﻿using BussinesServices.ServiceResult;
 using Dal;
+using Dal.Entities;
 
 namespace BussinesServices.Services
 {
@@ -17,19 +18,19 @@ namespace BussinesServices.Services
             return null;
         }
 
-        protected ServiceError? ValidateString(string name, string? value, int maxLen)
+        protected ServiceError? ValidateEmptyString(string name, string? value)
         {
             if (string.IsNullOrWhiteSpace(value) || string.IsNullOrEmpty(value))
             {
                 return Errors.EmptyString(name);
             }
 
-            if (value.Length > maxLen)
-            {
-                return Errors.MaxLen(name, maxLen);
-            }
-
             return null;
+        }
+        
+        protected ServiceError? ValidateCurrencyIdLen(string name, string value)
+        {
+            return value.Length != Currency.IdLen ? Errors.Len(name, Currency.IdLen) : null;
         }
     }
 }
