@@ -22,14 +22,6 @@ namespace Api.Controllers
             return ServiceResult(result);
         }
 
-
-        [HttpPost("exchange")]
-        public async Task<ActionResult> Exchange(ExchangeRequestDto request, CancellationToken cancellationToken)
-        {
-            var result = await ExchangeService.ExchangeAsync(request, cancellationToken);
-            return ServiceResult(result);
-        }
-
         private readonly ILogger<CurrenciesController> _logger = logger;
         private CurrencyService CurrencyService => GetRequired<CurrencyService>();
         private ExchangeService ExchangeService => GetRequired<ExchangeService>();
