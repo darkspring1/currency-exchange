@@ -48,14 +48,17 @@ namespace E2E.Tests.Extensions
             throw new Exception("Can't create random currency. Too many collisions, try to cleanup currency table");
 
         }
-
-
-
-        public async static Task<T?> GetCurrencyAsync<T>(this HttpClient client, string id, HttpStatusCode expectedCode = HttpStatusCode.OK)
+        
+        public static async Task<T?> GetCurrencyAsync<T>(this HttpClient client, string id, HttpStatusCode expectedCode = HttpStatusCode.OK)
         {
             var response = await client.GetAsync($"/currencies/{id}");
             Assert.Equal(expectedCode, response.StatusCode);
             return await response.Content.ReadFromJsonAsync<T>();
+        }
+        
+        public static Task<HttpResponseMessage> GetCurrencyAsync(this HttpClient client, string id)
+        {
+            return client.GetAsync($"/currencies/{id}");
         }
     }
    

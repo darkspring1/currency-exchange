@@ -5,6 +5,7 @@ using E2E.Tests.Extensions;
 using E2E.Tests.Helpers;
 using Microsoft.AspNetCore.Mvc.Testing;
 using System.Net;
+using Dal.Entities;
 
 namespace E2E.Tests.ControllerTests;
 
@@ -61,6 +62,17 @@ public class UsersTest(WebApplicationFactory<Program> factory) : E2EBaseTest(fac
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
     
+    [Fact]
+    public async Task GetUserBalance_NoExistedCurrency_NotFound()
+    {
+        var user = await Client.CreateRandomUserAsync();
+        var currency = await GetNotExistedRandomCurrencyAsync();
+        
+        var response = await Client.GetUserBalanceAsync(user.Id.ToString(), currency);
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+    
     [Theory]
     [InlineData(ValidGuid, "u")]
     [InlineData(ValidGuid, "us")]
@@ -71,6 +83,21 @@ public class UsersTest(WebApplicationFactory<Program> factory) : E2EBaseTest(fac
         AssertHelpers.ExpectedServiceErrorAsync(response);
     }
 
+
+    private async Task<string> GetNotExistedRandomCurrencyAsync()
+    {
+        for (var i = 0; i < 10; i++)
+        {
+            var currency = Utils.RandomString(Currency.IdLen);
+            var response = await Client.GetCurrencyAsync(currency);
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                return currency;
+            }
+        }
+
+        throw new Exception("Too many collisions. Try to clean currencies table");
+    }
 
     private const string ValidGuid = "CC78522D-CEE8-4EE6-93A5-FD8AB876C666";
 }
