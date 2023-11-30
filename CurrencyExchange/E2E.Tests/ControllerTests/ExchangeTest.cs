@@ -52,5 +52,20 @@ public class ExchangeTest(WebApplicationFactory<Program> factory) : E2EBaseTest(
         Assert.Equal(fee, exchangeResponse.Fee);
         Assert.Equal(feeAmount, exchangeResponse.FeeAmount);
         Assert.Equal(rate, exchangeResponse.Rate);
+        
+        var balances = await Task.WhenAll(
+            Client.GetUserBalanceAsync<BalanceResponseDto>(newUser.Id.ToString(), "rub"),
+            Client.GetUserBalanceAsync<BalanceResponseDto>(newUser.Id.ToString(), "usd"));
+
+        void AssertBalance(decimal expectedBalance, string expectedCurrencyId, BalanceResponseDto? bDto)
+        {
+            Assert.NotNull(bDto);
+            Assert.Equal(expectedBalance, bDto.Balance);
+            Assert.Equal(expectedCurrencyId, bDto.CurrencyId);
+            Assert.Equal(newUser.Id, bDto.UserId);
+        }
+        
+        AssertBalance(expectedFromBalance, "RUB", balances[0]);
+        AssertBalance(expectedToBalance, "USD", balances[1]);
     }
 }
