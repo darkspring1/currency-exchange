@@ -23,7 +23,7 @@ namespace Api.Controllers
             return ServiceResult(result);
         }
 
-        [HttpGet("{userId:guid}/currencyId")]
+        [HttpGet("{userId:guid}/balance/currencyId")]
         public async Task<ActionResult> GetBalance(Guid userId, string currencyId, CancellationToken cancellationToken)
         {
             var requestDto = new BalanceRequestDto { UserId = userId, CurrencyId = currencyId };
@@ -32,7 +32,7 @@ namespace Api.Controllers
             return ServiceResult(result);
         }
 
-        [HttpPut("{userId:guid}/currencyId")]
+        [HttpPut("{userId:guid}/balance/currencyId")]
         public async Task<ActionResult> UpdateBalnce(Guid userId, string currencyId, CreateBalanceDto dto, CancellationToken cancellationToken)
         {
             var requestDto = new CreateBalanceRequestDto { UserId = userId, CurrencyId = currencyId, Balance = dto.Balance };
