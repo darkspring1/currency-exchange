@@ -13,6 +13,12 @@ namespace E2E.Tests.Extensions
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
         
+        public static async Task CreateRubAsync(this HttpClient client)
+        {
+            var response = await client.PostAsJsonAsync("/currencies", new CreateCurrencyDto { Id = "Rub", Name = "Russian Ruble"});
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        }
+        
         public static async Task<T?> CreateCurrencyAsync<T>(this HttpClient client, CreateCurrencyDto dto, HttpStatusCode expectedCode = HttpStatusCode.OK)
         {
             var response = await client.PostAsJsonAsync("/currencies", dto);

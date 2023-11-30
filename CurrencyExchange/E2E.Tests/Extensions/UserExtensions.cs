@@ -32,10 +32,15 @@ namespace E2E.Tests.Extensions
         {
             return client.GetAsync($"/users/{id}");
         }
-
-        public static async Task<T?> CreateUserBalanceAsync<T>(this HttpClient client, string userId, string currencyId, CreateBalanceDto dto, HttpStatusCode expectedCode = HttpStatusCode.OK)
+        
+        public static Task<BalanceResponseDto?> SetUserBalanceAsync(this HttpClient client, string userId, string currencyId, decimal balance)
         {
-            var response = await client.PutAsJsonAsync($"/users/{userId}/balance/{currencyId}", dto);
+            return client.SetUserBalanceAsync<BalanceResponseDto>(userId, currencyId, balance, HttpStatusCode.OK);
+        }
+
+        public static async Task<T?> SetUserBalanceAsync<T>(this HttpClient client, string userId, string currencyId, decimal balance, HttpStatusCode expectedCode = HttpStatusCode.OK)
+        {
+            var response = await client.PutAsJsonAsync($"/users/{userId}/balance/{currencyId}", new CreateBalanceDto { Balance = balance});
             Assert.Equal(expectedCode, response.StatusCode);
             return await response.Content.ReadFromJsonAsync<T>();
         }

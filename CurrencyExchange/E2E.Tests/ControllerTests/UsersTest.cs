@@ -62,9 +62,8 @@ public class UsersTest(WebApplicationFactory<Program> factory) : E2EBaseTest(fac
             Assert.Equal(currency.ToUpper(), bResponse.CurrencyId);
             Assert.Equal(newUser.Id, bResponse.UserId);
         }
-
-        var dto = new CreateBalanceDto { Balance = expectedBalance };
-        var balanceResponse = await Client.CreateUserBalanceAsync<BalanceResponseDto>(newUser.Id.ToString(), currency, dto);
+        
+        var balanceResponse = await Client.SetUserBalanceAsync<BalanceResponseDto>(newUser.Id.ToString(), currency, expectedBalance);
 
         AssertBalance(balanceResponse);
 
