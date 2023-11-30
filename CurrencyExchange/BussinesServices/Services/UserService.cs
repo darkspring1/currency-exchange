@@ -1,9 +1,10 @@
-﻿using BussinesServices.ServiceResult;
+﻿using BussinesServices.Dto;
+using BussinesServices.ServiceResult;
 using Dal;
 using Dal.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace BussinesServices
+namespace BussinesServices.Services
 {
     public class UserService
     {
@@ -24,8 +25,8 @@ namespace BussinesServices
 
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == dto.Id, cancellationToken);
 
-           
-            if(user == null)
+
+            if (user == null)
             {
                 user = new User
                 {
@@ -45,10 +46,10 @@ namespace BussinesServices
         }
 
         public async Task<IResult<UserResponseDto>> GetAsync(Guid id, CancellationToken cancellationToken)
-        { 
+        {
             var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
 
-            if(user == null)
+            if (user == null)
             {
                 return Result.Success<UserResponseDto>();
             }

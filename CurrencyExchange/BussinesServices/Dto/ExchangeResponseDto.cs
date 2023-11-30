@@ -1,4 +1,4 @@
-﻿namespace BussinesServices;
+﻿namespace BussinesServices.Dto;
 
 public class ExchangeResponseDto
 {

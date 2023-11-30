@@ -1,5 +1,6 @@
 using Api.Models;
-using BussinesServices;
+using BussinesServices.Dto;
+using BussinesServices.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers

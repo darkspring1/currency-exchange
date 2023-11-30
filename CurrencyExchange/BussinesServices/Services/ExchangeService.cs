@@ -1,11 +1,12 @@
-﻿using BussinesServices.ServiceResult;
+﻿using BussinesServices.Dto;
+using BussinesServices.ServiceResult;
 using Dal;
 using Dal.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
-using ExchangeResult = BussinesServices.ServiceResult.IResult<BussinesServices.ExchangeResponseDto>;
+using ExchangeResult = BussinesServices.ServiceResult.IResult<BussinesServices.Dto.ExchangeResponseDto>;
 
-namespace BussinesServices
+namespace BussinesServices.Services
 {
 
     public class ExchangeService
@@ -122,7 +123,8 @@ namespace BussinesServices
             );
         }
 
-        private async Task<Account> CreateAccountAsync(Guid userId, string currencyId, CancellationToken cancellationToken) {
+        private async Task<Account> CreateAccountAsync(Guid userId, string currencyId, CancellationToken cancellationToken)
+        {
 
             var acc = new Account
             {
