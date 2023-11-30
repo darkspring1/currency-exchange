@@ -54,7 +54,7 @@ namespace BussinesServices.Services
                 return Fail(error);
             }
 
-            var entity = await _dbContext.Currencies.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+            var entity = await _dbContext.Currencies.SingleOrDefaultAsync(x => x.Id == id!.ToUpper(), cancellationToken);
 
             return Success(entity);
         }

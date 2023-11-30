@@ -2,7 +2,13 @@
 {
     public class Currency {
 
-        public string Id { get; set; }
+        private string _id;
+
+        public string Id
+        {
+            get { return _id; }
+            set { _id = value.ToUpper(); }
+        }
         public string Name { get; set; }
 
 

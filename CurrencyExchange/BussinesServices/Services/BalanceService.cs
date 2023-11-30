@@ -19,7 +19,7 @@ namespace BussinesServices.Services
                 return badResponse;
             }
 
-            var account = await DbContext.Accounts.SingleOrDefaultAsync(x => x.UserId == dto.UserId && x.CurrencyId == dto.CurrencyId, cancellationToken);
+            var account = await LoadAccountAsync(dto, cancellationToken);
 
             return Success(account);
 
@@ -38,7 +38,7 @@ namespace BussinesServices.Services
 
             if (account == null)
             {
-                account = new Account { Balance = dto.Balance };
+                account = new Account { CurrencyId = dto.CurrencyId!, UserId = dto.UserId, Balance = dto.Balance };
                 await DbContext.Accounts.AddAsync(account, cancellationToken);
             }
             else
@@ -72,7 +72,7 @@ namespace BussinesServices.Services
 
         private Task<Account?> LoadAccountAsync(BalanceRequestDto dto, CancellationToken cancellation)
         {
-            return DbContext.Accounts.SingleOrDefaultAsync(x => x.UserId == dto.UserId && x.CurrencyId == dto.CurrencyId, cancellation);
+            return DbContext.Accounts.SingleOrDefaultAsync(x => x.UserId == dto.UserId && x.CurrencyId == dto.CurrencyId!.ToUpper(), cancellation);
         }
 
         private IResult<BalanceResponseDto> Fail(ServiceError error) => Result.Fail<BalanceResponseDto>(error);
