@@ -1,13 +1,11 @@
 ﻿using BussinesServices.ServiceResult;
-using Dal;
 using Dal.Entities;
 
 namespace BussinesServices.Services
 {
-    public class BaseBussinesService(ExchangeDbContext dbContext)
+    public class BaseBussinesService()
     {
-        protected ExchangeDbContext DbContext { get; private set; } = dbContext;
-
+        
         protected ServiceError? ValidatePositive(string name, decimal value)
         {
             if (value <= 0)

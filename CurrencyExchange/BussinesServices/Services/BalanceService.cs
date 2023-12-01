@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace BussinesServices.Services
 {
 
-    public class BalanceService(ExchangeDbContext dbContext) : BaseBussinesService(dbContext)
+    public class BalanceService(ExchangeDbContext dbContext) : BaseBussinesService()
     {
 
         public async Task<IResult<BalanceResponseDto>> GetAsync(BalanceRequestDto dto, CancellationToken cancellationToken)
@@ -39,14 +39,14 @@ namespace BussinesServices.Services
             if (account == null)
             {
                 account = new Account { CurrencyId = dto.CurrencyId!, UserId = dto.UserId, Balance = dto.Balance };
-                await DbContext.Accounts.AddAsync(account, cancellationToken);
+                await dbContext.Accounts.AddAsync(account, cancellationToken);
             }
             else
             {
                 account.Balance = dto.Balance;
             }
 
-            await DbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
 
             return Success(account);
         }
@@ -72,7 +72,7 @@ namespace BussinesServices.Services
 
         private Task<Account?> LoadAccountAsync(BalanceRequestDto dto, CancellationToken cancellation)
         {
-            return DbContext.Accounts.SingleOrDefaultAsync(x => x.UserId == dto.UserId && x.CurrencyId == dto.CurrencyId!.ToUpper(), cancellation);
+            return dbContext.Accounts.SingleOrDefaultAsync(x => x.UserId == dto.UserId && x.CurrencyId == dto.CurrencyId!.ToUpper(), cancellation);
         }
 
         private IResult<BalanceResponseDto> Fail(ServiceError error) => Result.Fail<BalanceResponseDto>(error);

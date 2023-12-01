@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BussinesServices.Services
 {
-    public class UserService(ExchangeDbContext dbContext): BaseBussinesService(dbContext)
+    public class UserService(ExchangeDbContext dbContext): BaseBussinesService()
     {
         public async Task<IResult<UserResponseDto>> CreateAsync(CreateUserRequestDto dto, CancellationToken cancellationToken)
         {
