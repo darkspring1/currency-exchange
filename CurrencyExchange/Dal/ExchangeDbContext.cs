@@ -15,7 +15,7 @@ namespace Dal
         {
             //TODO: move to config
             optionsBuilder
-                .UseNpgsql(@"Host=localhost;Username=root;Password=root;Database=currency_exchange")
+                .UseNpgsql(@"Host=localhost;Username=root;Password=root;Database=currency_exchange;Pooling=true;Minimum Pool Size=1;Maximum Pool Size=10")
                 .UseSnakeCaseNamingConvention();
         }
 
