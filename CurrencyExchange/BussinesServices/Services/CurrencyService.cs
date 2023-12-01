@@ -50,7 +50,7 @@ namespace BussinesServices.Services
 
     private IResult<CurrencyResponseDto>? ValidateRequest(CreateCurrencyDto dto)
     {
-        var error = ValidateString(nameof(dto.Id), dto.Id, Currency.IdLen);
+        var error = ValidateCurrencyId(nameof(dto.Id), dto.Id);
         if (error != null)
         {
             return Fail(error);

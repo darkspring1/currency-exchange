@@ -63,10 +63,7 @@ namespace BussinesServices.Services
 
         private IResult<BalanceResponseDto>? ValidateRequest(BalanceRequestDto dto)
         {
-            var error = ValidateEmptyString("CurrencyId", dto.CurrencyId);
-            if (error != null) { return Fail(error); }
-
-            error = ValidateCurrencyIdLen(nameof(dto.CurrencyId), dto.CurrencyId);
+            var error = ValidateCurrencyId(nameof(dto.CurrencyId), dto.CurrencyId);
             return error != null ? Fail(error) : null;
         }
 

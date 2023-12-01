@@ -48,9 +48,15 @@ namespace BussinesServices.Services
             return error ?? null;
         }
         
-        protected ServiceError? ValidateCurrencyIdLen(string name, string value)
+        protected ServiceError? ValidateCurrencyId(string name, string? value)
         {
-            return value.Length != Currency.IdLen ? Errors.Len(name, Currency.IdLen) : null;
+            var error = ValidateEmptyString(name, value);
+            if (error != null)
+            {
+                return error;
+            }
+            
+            return value!.Length != Currency.IdLen ? Errors.Len(name, Currency.IdLen) : null;
         }
     }
 }
