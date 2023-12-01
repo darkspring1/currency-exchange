@@ -19,6 +19,8 @@ namespace BussinesServices.ServiceResult
            => new (5, $"{name} must not be null empty");
         
         public static ServiceError Len(string name, int len) => new(6, $"{name} lenght must be == {len}.");
+        
+        public static ServiceError IntrenalServerError() => new(7, $"Internal Server Error");
 
     }
 }

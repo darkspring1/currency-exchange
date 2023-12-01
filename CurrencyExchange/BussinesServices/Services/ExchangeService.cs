@@ -4,12 +4,13 @@ using Dal;
 using Dal.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using Microsoft.Extensions.Logging;
 using ExchangeResult = BussinesServices.ServiceResult.IResult<BussinesServices.Dto.ExchangeResponseDto>;
 
 namespace BussinesServices.Services
 {
 
-    public class ExchangeService(ExchangeDbContext dbContext)
+    public class ExchangeService(ExchangeDbContext dbContext, ILogger<ExchangeService> logger)
     {
         public async Task<ExchangeResult> ExchangeAsync(ExchangeRequestDto dto, CancellationToken cancellationToken)
         {
@@ -27,6 +28,35 @@ namespace BussinesServices.Services
                 return Result.Fail<ExchangeResponseDto>(error);
             }
 
+            return await RunExchangeTxWithRetryAsync(dto, cancellationToken);
+
+        }
+
+        private async Task<ExchangeResult> RunExchangeTxWithRetryAsync(ExchangeRequestDto dto, CancellationToken cancellationToken)
+        {
+            const int maxRetry = 3;
+            
+            for (var i = 1; i <= maxRetry; i++)
+            {
+                try
+                {
+                    return await RunExchangeTxAsync(dto, cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    logger.LogDebug(e, $"Exchange tx failed. Attempt:{i+1}");
+                    if (i == maxRetry)
+                    {
+                        throw;
+                    }
+                }
+            }
+
+            return Result.Fail<ExchangeResponseDto>(Errors.IntrenalServerError());
+        }
+
+        private async Task<ExchangeResult> RunExchangeTxAsync(ExchangeRequestDto dto, CancellationToken cancellationToken)
+        {
             await using var transaction = await dbContext.Database.BeginTransactionAsync(IsolationLevel.RepeatableRead, cancellationToken);
             try
             {
@@ -61,16 +91,16 @@ namespace BussinesServices.Services
                         FeeAmount = feeAmount
 
                     };
-                    dbContext.ExchangeHistory.Add(history);
+                    await dbContext.ExchangeHistory.AddAsync(history, cancellationToken);
                     await dbContext.SaveChangesAsync(cancellationToken);
                     await transaction.CommitAsync(cancellationToken);
-                    
                 }
 
                 return CreateSuccessResult(history);
             }
-            catch (Exception e)
+            catch (Exception)
             {
+                dbContext.ChangeTracker.Clear();
                 await transaction.RollbackAsync(cancellationToken);
                 throw;
             }
