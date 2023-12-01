@@ -28,6 +28,16 @@ namespace BussinesServices.Services
             return null;
         }
         
+        protected ServiceError? ValidateMaxLen(string name, string? value, int maxLen)
+        {
+            if (value.Length > maxLen)
+            {
+                return Errors.MaxLen(name, maxLen);
+            }
+
+            return null;
+        }
+        
         protected ServiceError? ValidateCurrencyIdLen(string name, string value)
         {
             return value.Length != Currency.IdLen ? Errors.Len(name, Currency.IdLen) : null;

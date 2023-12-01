@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BussinesServices.Services
 {
-    public class UserService(ExchangeDbContext dbContext)
+    public class UserService(ExchangeDbContext dbContext): BaseBussinesService(dbContext)
     {
         public async Task<IResult<UserResponseDto>> CreateAsync(CreateUserRequestDto dto, CancellationToken cancellationToken)
         {
@@ -53,31 +53,16 @@ namespace BussinesServices.Services
             });
         }
 
-        private IResult<UserResponseDto?> ValidateRequest(CreateUserRequestDto dto)
+        private IResult<UserResponseDto>? ValidateRequest(CreateUserRequestDto dto)
         {
-            var error = ValidateString(nameof(dto.Name), dto.Name, User.MaxNameLen);
+            var error = ValidateEmptyString(nameof(dto.Name), dto.Name);
             if (error != null)
             {
                 return Result.Fail<UserResponseDto>(error);
             }
-
-            return null;
-        }
-
-        //todo: move to base class
-        private ServiceError? ValidateString(string name, string? value, int maxLen)
-        {
-            if (string.IsNullOrWhiteSpace(value) || string.IsNullOrEmpty(value))
-            {
-                return Errors.EmptyString(name);
-            }
-
-            if (value.Length > maxLen)
-            {
-                return Errors.MaxLen(name, maxLen);
-            }
-
-            return null;
+            
+            error = ValidateMaxLen(nameof(dto.Name), dto.Name, User.MaxNameLen);
+            return error != null ? Result.Fail<UserResponseDto>(error) : null;
         }
     }
 }
