@@ -55,14 +55,13 @@ namespace BussinesServices.Services
 
         private IResult<UserResponseDto>? ValidateRequest(CreateUserRequestDto dto)
         {
-            var error = ValidateEmptyString(nameof(dto.Name), dto.Name);
+            var error = ValidateString(nameof(dto.Name), dto.Name, User.MaxNameLen);
             if (error != null)
             {
                 return Result.Fail<UserResponseDto>(error);
             }
-            
-            error = ValidateMaxLen(nameof(dto.Name), dto.Name, User.MaxNameLen);
-            return error != null ? Result.Fail<UserResponseDto>(error) : null;
+
+            return null;
         }
     }
 }

@@ -64,22 +64,7 @@ namespace BussinesServices.Services
 
         return null;
     }
-
-    //todo: move to base class
-    private ServiceError? ValidateString(string name, string? value, int maxLen)
-    {
-        if (string.IsNullOrWhiteSpace(value) || string.IsNullOrEmpty(value))
-        {
-            return Errors.EmptyString(name);
-        }
-
-        if (value.Length > maxLen)
-        {
-            return Errors.MaxLen(name, maxLen);
-        }
-
-        return null;
-    }
+    
 
     private IResult<CurrencyResponseDto> Fail(ServiceError error)
     {

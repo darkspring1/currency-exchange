@@ -36,6 +36,18 @@ namespace BussinesServices.Services
             return null;
         }
         
+        protected ServiceError? ValidateString(string name, string? value, int maxLen)
+        {
+            var error = ValidateEmptyString(name, value);
+            if (error != null)
+            {
+                return error;
+            }
+
+            error = ValidateMaxLen(name, value, maxLen);
+            return error ?? null;
+        }
+        
         protected ServiceError? ValidateCurrencyIdLen(string name, string value)
         {
             return value.Length != Currency.IdLen ? Errors.Len(name, Currency.IdLen) : null;
