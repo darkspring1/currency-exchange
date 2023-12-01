@@ -14,22 +14,7 @@ namespace BussinesServices.Services
     {
         public async Task<ExchangeResult> ExchangeAsync(ExchangeRequestDto dto, CancellationToken cancellationToken)
         {
-
-            var error = ValidateDecimal("Amount", dto.Amount);
-
-            if (error != null)
-            {
-                return Result.Fail<ExchangeResponseDto>(error);
-            }
-
-            error = ValidateDecimal("Rate", dto.Rate);
-            if (error != null)
-            {
-                return Result.Fail<ExchangeResponseDto>(error);
-            }
-
-            return await RunExchangeTxWithRetryAsync(dto, cancellationToken);
-
+            return ValidateRequest(dto) ?? await RunExchangeTxWithRetryAsync(dto, cancellationToken);
         }
 
         private async Task<ExchangeResult> RunExchangeTxWithRetryAsync(ExchangeRequestDto dto, CancellationToken cancellationToken)
@@ -104,6 +89,24 @@ namespace BussinesServices.Services
                 await transaction.RollbackAsync(cancellationToken);
                 throw;
             }
+        }
+
+        private ExchangeResult? ValidateRequest(ExchangeRequestDto dto)
+        {
+            var error = ValidateDecimal("Amount", dto.Amount);
+
+            if (error != null)
+            {
+                return Result.Fail<ExchangeResponseDto>(error);
+            }
+
+            error = ValidateDecimal("Rate", dto.Rate);
+            if (error != null)
+            {
+                return Result.Fail<ExchangeResponseDto>(error);
+            }
+
+            return null;
         }
 
         private static ServiceError? ValidateDecimal(string name, decimal value)
