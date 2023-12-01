@@ -1,4 +1,7 @@
-﻿using BussinesServices.Dto;
+﻿using System.Net;
+using System.Net.Http.Json;
+using BussinesServices.Dto;
+using BussinesServices.ServiceResult;
 using E2E.Tests.Extensions;
 using Microsoft.AspNetCore.Mvc.Testing;
 
@@ -98,48 +101,72 @@ public class ExchangeTest(WebApplicationFactory<Program> factory) : E2EBaseTest(
     public async Task Parallel()
     {
         var newUser = await CreateUserAsync();
-        var idempotencyKey = Guid.NewGuid();
-        var dto1 = new ExchangeRequestDto
-        {
-            IdempotencyKey = idempotencyKey,
-            Amount = ExchangeAmount,
-            UserId = newUser.Id,
-            Fee = Fee,
-            Rate = Rate,
-            From = "rub",
-            To = "usd"
-        };
         
-        var dto2 = new ExchangeRequestDto
+        ExchangeRequestDto Dto()
         {
-            IdempotencyKey = Guid.NewGuid(),
-            Amount = ExchangeAmount,
-            UserId = newUser.Id,
-            Fee = Fee,
-            Rate = Rate,
-            From = "rub",
-            To = "usd"
-        };
-
-        await Task.WhenAll(Client.ExchangeAsync<ExchangeResponseDto>(dto1),
-            Client.ExchangeAsync<ExchangeResponseDto>(dto2));
-
-     
+            return new ExchangeRequestDto
+            {
+                IdempotencyKey = Guid.NewGuid(),
+                Amount = ExchangeAmount,
+                UserId = newUser.Id,
+                Fee = Fee,
+                Rate = Rate,
+                From = "rub",
+                To = "usd"
+            };
+        }
+        
+        await Task.WhenAll(
+            Client.ExchangeAsync<ExchangeResponseDto>(Dto()),
+            Client.ExchangeAsync<ExchangeResponseDto>(Dto()),
+            Client.ExchangeAsync<ExchangeResponseDto>(Dto()));
+    }
+    
+    [Fact]
+    public async Task Parallel_BalanceIsNot()
+    {
+        var expectedErrorCode = Errors.SmallBalance(0, "", 0).Code;
+        
+        var newUser = await CreateUserAsync(ExchangeAmount*2);
+        
+        ExchangeRequestDto Dto()
+        {
+            return new ExchangeRequestDto
+            {
+                IdempotencyKey = Guid.NewGuid(),
+                Amount = ExchangeAmount,
+                UserId = newUser.Id,
+                Fee = Fee,
+                Rate = Rate,
+                From = "rub",
+                To = "usd"
+            };
+        }
+        
+        var responses = await Task.WhenAll(
+            Client.ExchangeAsync(Dto()),
+            Client.ExchangeAsync(Dto()),
+            Client.ExchangeAsync(Dto()));
+        
+        var badResponse = responses.Single(r => r.StatusCode == HttpStatusCode.BadRequest);
+        var actualError = await badResponse.Content.ReadFromJsonAsync<ServiceError>();
+        
+        Assert.Equal(2, responses.Count(r => r.StatusCode == HttpStatusCode.OK));
+        Assert.Equal(expectedErrorCode, actualError.Code);
     }
 
-    private async Task<UserResponseDto> CreateUserAsync()
+    private async Task<UserResponseDto> CreateUserAsync(decimal fromBalance = 1000)
     {
         var newUser = await Client.CreateRandomUserAsync();
         await Task.WhenAll(Client.CreateUsdAsync(), Client.CreateRubAsync());
         
         await Task.WhenAll(
-            Client.SetUserBalanceAsync(newUser.Id.ToString(), "rub", FromBalance),
+            Client.SetUserBalanceAsync(newUser.Id.ToString(), "rub", fromBalance),
             Client.SetUserBalanceAsync(newUser.Id.ToString(), "usd", ToBalance));
 
         return newUser;
     }
-
-    const decimal FromBalance = 1000;
+    
     const decimal ToBalance = 3;
     const decimal Rate = 0.011m; //rub -> usd
     const decimal Fee = 0.05m;

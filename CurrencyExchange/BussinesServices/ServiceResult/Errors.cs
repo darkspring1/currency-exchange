@@ -1,7 +1,7 @@
 ﻿
 namespace BussinesServices.ServiceResult
 {
-    static class Errors
+    public static class Errors
     {
         public static ServiceError PositiveValue(string name)
             => new (1, $"{name} value must be > 0");

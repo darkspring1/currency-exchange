@@ -13,4 +13,9 @@ internal static class ExchangeExtensions
 
         return await response.Content.ReadFromJsonAsync<T>();
     }
+    
+    public static Task<HttpResponseMessage> ExchangeAsync(this HttpClient client, ExchangeRequestDto dto)
+    {
+        return client.PostAsJsonAsync("/exchange", dto);
+    }
 }
