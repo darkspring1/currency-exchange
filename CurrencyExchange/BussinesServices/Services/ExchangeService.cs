@@ -62,13 +62,14 @@ namespace BussinesServices.Services
 
                     };
                     dbContext.ExchangeHistory.Add(history);
-                    await transaction.CommitAsync(cancellationToken);
                     await dbContext.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+                    
                 }
 
                 return CreateSuccessResult(history);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 await transaction.RollbackAsync(cancellationToken);
                 throw;

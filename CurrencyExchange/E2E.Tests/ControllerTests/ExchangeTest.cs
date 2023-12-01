@@ -93,6 +93,39 @@ public class ExchangeTest(WebApplicationFactory<Program> factory) : E2EBaseTest(
         AssertBalance(ExpectedFromBalance, "RUB", balances[0]);
         AssertBalance(ExpectedToBalance, "USD", balances[1]);
     }
+    
+    [Fact]
+    public async Task Parallel()
+    {
+        var newUser = await CreateUserAsync();
+        var idempotencyKey = Guid.NewGuid();
+        var dto1 = new ExchangeRequestDto
+        {
+            IdempotencyKey = idempotencyKey,
+            Amount = ExchangeAmount,
+            UserId = newUser.Id,
+            Fee = Fee,
+            Rate = Rate,
+            From = "rub",
+            To = "usd"
+        };
+        
+        var dto2 = new ExchangeRequestDto
+        {
+            IdempotencyKey = Guid.NewGuid(),
+            Amount = ExchangeAmount,
+            UserId = newUser.Id,
+            Fee = Fee,
+            Rate = Rate,
+            From = "rub",
+            To = "usd"
+        };
+
+        await Task.WhenAll(Client.ExchangeAsync<ExchangeResponseDto>(dto1),
+            Client.ExchangeAsync<ExchangeResponseDto>(dto2));
+
+     
+    }
 
     private async Task<UserResponseDto> CreateUserAsync()
     {
