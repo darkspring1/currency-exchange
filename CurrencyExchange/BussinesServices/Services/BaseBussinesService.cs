@@ -8,7 +8,7 @@ namespace BussinesServices.Services
     {
         protected ExchangeDbContext DbContext { get; private set; } = dbContext;
 
-        protected private ServiceError? ValidatePositive(string name, decimal value)
+        protected ServiceError? ValidatePositive(string name, decimal value)
         {
             if (value <= 0)
             {

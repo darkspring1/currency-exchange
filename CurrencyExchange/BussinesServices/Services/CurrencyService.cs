@@ -6,15 +6,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BussinesServices.Services
 {
-
-    public class CurrencyService
+    public class CurrencyService(ExchangeDbContext dbContext)
     {
-
-        public CurrencyService(ExchangeDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         public async Task<IResult<CurrencyResponseDto>> CreateAsync(CreateCurrencyDto dto, CancellationToken cancellationToken)
         {
 
@@ -30,7 +23,7 @@ namespace BussinesServices.Services
                 return Fail(error);
             }
 
-            var currency = await _dbContext.Currencies.SingleOrDefaultAsync(x => x.Id == dto.Id!.ToUpper(), cancellationToken);
+            var currency = await dbContext.Currencies.SingleOrDefaultAsync(x => x.Id == dto.Id!.ToUpper(), cancellationToken);
 
             if (currency == null)
             {
@@ -39,8 +32,8 @@ namespace BussinesServices.Services
                     Id = dto.Id!,
                     Name = dto.Name!,
                 };
-                await _dbContext.Currencies.AddAsync(currency, cancellationToken);
-                await _dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Currencies.AddAsync(currency, cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
             }
 
             return Success(currency);
@@ -54,7 +47,7 @@ namespace BussinesServices.Services
                 return Fail(error);
             }
 
-            var entity = await _dbContext.Currencies.SingleOrDefaultAsync(x => x.Id == id!.ToUpper(), cancellationToken);
+            var entity = await dbContext.Currencies.SingleOrDefaultAsync(x => x.Id == id!.ToUpper(), cancellationToken);
 
             return Success(entity);
         }
@@ -93,7 +86,5 @@ namespace BussinesServices.Services
                 Name = entity.Name
             });
         }
-        
-        private readonly ExchangeDbContext _dbContext;
     }
 }

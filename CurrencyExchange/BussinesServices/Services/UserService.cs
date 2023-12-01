@@ -6,26 +6,19 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BussinesServices.Services
 {
-    public class UserService
+    public class UserService(ExchangeDbContext dbContext)
     {
-
-        public UserService(ExchangeDbContext dbContext)
-        {
-            _dbContext = dbContext;
-        }
-
         public async Task<IResult<UserResponseDto>> CreateAsync(CreateUserRequestDto dto, CancellationToken cancellationToken)
         {
+            var badResponse = ValidateRequest(dto);
 
-            var error = ValidateString("Namme", dto.Name, User.MaxNameLen);
-            if (error != null)
+            if (badResponse != null)
             {
-                return Result.Fail<UserResponseDto>(error);
+                return badResponse;
             }
-
-            var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == dto.Id, cancellationToken);
-
-
+            
+            var user = await dbContext.Users.SingleOrDefaultAsync(x => x.Id == dto.Id, cancellationToken);
+            
             if (user == null)
             {
                 user = new User
@@ -33,11 +26,10 @@ namespace BussinesServices.Services
                     Id = dto.Id,
                     Name = dto.Name!,
                 };
-                await _dbContext.Users.AddAsync(user, cancellationToken);
-                await _dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Users.AddAsync(user, cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
             }
-
-
+            
             return Result.Success(new UserResponseDto
             {
                 Id = user.Id,
@@ -47,7 +39,7 @@ namespace BussinesServices.Services
 
         public async Task<IResult<UserResponseDto>> GetAsync(Guid id, CancellationToken cancellationToken)
         {
-            var user = await _dbContext.Users.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
+            var user = await dbContext.Users.SingleOrDefaultAsync(x => x.Id == id, cancellationToken);
 
             if (user == null)
             {
@@ -61,6 +53,16 @@ namespace BussinesServices.Services
             });
         }
 
+        private IResult<UserResponseDto?> ValidateRequest(CreateUserRequestDto dto)
+        {
+            var error = ValidateString(nameof(dto.Name), dto.Name, User.MaxNameLen);
+            if (error != null)
+            {
+                return Result.Fail<UserResponseDto>(error);
+            }
+
+            return null;
+        }
 
         //todo: move to base class
         private ServiceError? ValidateString(string name, string? value, int maxLen)
@@ -77,7 +79,5 @@ namespace BussinesServices.Services
 
             return null;
         }
-
-        private readonly ExchangeDbContext _dbContext;
     }
 }
