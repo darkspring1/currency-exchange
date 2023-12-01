@@ -6,85 +6,98 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BussinesServices.Services
 {
-    public class CurrencyService(ExchangeDbContext dbContext)
+    public class CurrencyService(ExchangeDbContext dbContext) : BaseBussinesService
     {
-        public async Task<IResult<CurrencyResponseDto>> CreateAsync(CreateCurrencyDto dto, CancellationToken cancellationToken)
+    public async Task<IResult<CurrencyResponseDto>> CreateAsync(CreateCurrencyDto dto,
+        CancellationToken cancellationToken)
+    {
+        var badResponse = ValidateRequest(dto);
+        if (badResponse != null)
         {
-
-            var error = ValidateString("Id", dto.Id, Currency.IdLen);
-            if(error != null)
-            {
-                return Fail(error);
-            }
-
-            error = ValidateString("Name", dto.Name, Currency.MaxNameLen);
-            if (error != null)
-            {
-                return Fail(error);
-            }
-
-            var currency = await dbContext.Currencies.SingleOrDefaultAsync(x => x.Id == dto.Id!.ToUpper(), cancellationToken);
-
-            if (currency == null)
-            {
-                currency = new Currency
-                {
-                    Id = dto.Id!,
-                    Name = dto.Name!,
-                };
-                await dbContext.Currencies.AddAsync(currency, cancellationToken);
-                await dbContext.SaveChangesAsync(cancellationToken);
-            }
-
-            return Success(currency);
+            return badResponse;
         }
 
-        public async Task<IResult<CurrencyResponseDto>> GetAsync(string? id, CancellationToken cancellationToken)
+        var currency =
+            await dbContext.Currencies.SingleOrDefaultAsync(x => x.Id == dto.Id!.ToUpper(), cancellationToken);
+
+        if (currency == null)
         {
-            var error = ValidateString("Id", id, Currency.IdLen);
-            if (error != null)
+            currency = new Currency
             {
-                return Fail(error);
-            }
-
-            var entity = await dbContext.Currencies.SingleOrDefaultAsync(x => x.Id == id!.ToUpper(), cancellationToken);
-
-            return Success(entity);
+                Id = dto.Id!,
+                Name = dto.Name!,
+            };
+            await dbContext.Currencies.AddAsync(currency, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
         }
 
-        //todo: move to base class
-        private ServiceError? ValidateString(string name, string? value, int maxLen)
+        return Success(currency);
+    }
+
+    public async Task<IResult<CurrencyResponseDto>> GetAsync(string? id, CancellationToken cancellationToken)
+    {
+        var error = ValidateString("Id", id, Currency.IdLen);
+        if (error != null)
         {
-            if (string.IsNullOrWhiteSpace(value) || string.IsNullOrEmpty(value))
-            {
-                return Errors.EmptyString(name);
-            }
-
-            if(value.Length > maxLen)
-            {
-                return Errors.MaxLen(name, maxLen);
-            }
-
-            return null;
+            return Fail(error);
         }
 
-        private IResult<CurrencyResponseDto> Fail(ServiceError error)
+        var entity = await dbContext.Currencies.SingleOrDefaultAsync(x => x.Id == id!.ToUpper(), cancellationToken);
+
+        return Success(entity);
+    }
+
+
+    private IResult<CurrencyResponseDto>? ValidateRequest(CreateCurrencyDto dto)
+    {
+        var error = ValidateString(nameof(dto.Id), dto.Id, Currency.IdLen);
+        if (error != null)
         {
-            return Result.Fail<CurrencyResponseDto>(error);
+            return Fail(error);
         }
 
-        private IResult<CurrencyResponseDto> Success(Currency? entity)
+        error = ValidateString(nameof(dto.Name), dto.Name, Currency.MaxNameLen);
+        if (error != null)
         {
-            if(entity == null)
-            {
-                return Result.Success<CurrencyResponseDto>();
-            }
-
-            return Result.Success(new CurrencyResponseDto
-            {
-                Id = entity.Id,
-                Name = entity.Name
-            });
+            return Fail(error);
         }
+
+        return null;
+    }
+
+    //todo: move to base class
+    private ServiceError? ValidateString(string name, string? value, int maxLen)
+    {
+        if (string.IsNullOrWhiteSpace(value) || string.IsNullOrEmpty(value))
+        {
+            return Errors.EmptyString(name);
+        }
+
+        if (value.Length > maxLen)
+        {
+            return Errors.MaxLen(name, maxLen);
+        }
+
+        return null;
+    }
+
+    private IResult<CurrencyResponseDto> Fail(ServiceError error)
+    {
+        return Result.Fail<CurrencyResponseDto>(error);
+    }
+
+    private IResult<CurrencyResponseDto> Success(Currency? entity)
+    {
+        if (entity == null)
+        {
+            return Result.Success<CurrencyResponseDto>();
+        }
+
+        return Result.Success(new CurrencyResponseDto
+        {
+            Id = entity.Id,
+            Name = entity.Name
+        });
+    }
     }
 }
